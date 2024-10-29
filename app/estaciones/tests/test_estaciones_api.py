@@ -30,6 +30,20 @@ class EstacionesApiTests(TestCase):
         self.assertEqual(Estacion.objects.get().ubicacion.x, -73.935242)
         self.assertEqual(Estacion.objects.get().ubicacion.y, 40.73061)
 
+    def test_create_invalid_estacion(self):
+        """Test de creación de una estación con valores de longitud y latitud fuera de rango."""
+        url = reverse('estacion-list')
+        data = {
+            'nombre': 'Estacion Invalida',
+            'ubicacion': 'POINT(-300 300)'  # Valores fuera de rango
+        }
+
+        response = self.client.post(url, data, format='json')
+
+        # Verificar que la creación no sea exitosa y arroje un error de validación
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Estacion.objects.count(), 0)
+
     def test_list_estaciones(self):
         """Test para listar todas las estaciones."""
         Estacion.objects.create(nombre='New York', ubicacion='POINT(-73.935242 40.73061)')

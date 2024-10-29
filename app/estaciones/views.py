@@ -1,5 +1,6 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from django.contrib.gis.db.models.functions import Distance
 
@@ -13,10 +14,16 @@ class EstacionListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = EstacionSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except DRFValidationError as e:
+            return Response({'error': e.message_dict}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': 'Ha ocurrido un error al crear la estación.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class EstacionCercanaAPIView(generics.GenericAPIView):
     """Vista para obtener la estacion más cercana a una estacion específica"""
