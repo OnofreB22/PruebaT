@@ -25,13 +25,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Deploy on Remote Server
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Deploy using SSH
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          username: ${{ secrets.REMOTE_USERNAME }}
+          password: ${{ secrets.REMOTE_PASSWORD }}
+          port: 22
           script: |
             cd /home/onofreb/Documents/Code/PruebaT
-            docker compose down
-            docker compose up -d
+            docker-compose down
+            docker-compose up -d
